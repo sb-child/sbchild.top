@@ -1,0 +1,122 @@
+@import '../fonts/unifont.less';
+
+// 变量定义
+@nav-height: 48px;
+@nav-bg-color: #6b6b6b33;
+@bar-bg-color: #ffffff0a;
+@item-bg-color: #ffffff0a;
+@item-bg-hover: #ffffff1f;
+@item-bg-active: #ffffff2f;
+@title-color: #d5c6ff;
+@title-shadow: #4d4368;
+@item-color: #73f8ff;
+@item-shadow: #546160;
+@border-radius: 0px 0px 10px 0px;
+@body-bg-color: #1c1827;
+
+.nav-item-base() {
+  line-height: 28px;
+  text-align: center;
+  color: @item-color;
+  text-shadow: 2px 2px @item-shadow;
+  min-width: 60px;
+  margin: 5px 5px 5px 0px;
+  padding: 5px 10px 5px 10px;
+  border-radius: @border-radius;
+  background-color: @item-bg-color;
+  user-select: none;
+  cursor: pointer;
+  border-left: @item-color 1px solid;
+  box-sizing: border-box;
+  .ff_unifont();
+
+  &:hover {
+    background-color: @item-bg-hover;
+  }
+
+  &:active {
+    background-color: @item-bg-active;
+  }
+}
+
+.nav-button-container() {
+  height: @nav-height;
+  display: flex;
+  justify-content: end;
+
+  .item {
+    .nav-item-base();
+  }
+
+  button {
+    all: unset;
+
+    &:focus {
+      outline: revert;
+    }
+  }
+}
+
+.root {
+}
+
+.navs {
+  height: @nav-height;
+  width: 100vw;
+  background-color: @nav-bg-color;
+  display: grid;
+  grid-template-columns: min-content auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  .bar {
+    height: @nav-height;
+    background-color: @bar-bg-color;
+    border-radius: @border-radius;
+
+    .title {
+      line-height: @nav-height;
+      margin-left: 10pt;
+      margin-right: 10pt;
+      font-size: larger;
+      color: @title-color;
+      text-shadow: 2px 2px @title-shadow;
+      white-space: nowrap;
+      .ff_unifont();
+    }
+  }
+
+  .buttons {
+    .nav-button-container();
+
+    .overflow_detector {
+      flex: 1 1 auto;
+    }
+  }
+
+  .expand {
+    .nav-button-container();
+  }
+
+  ul {
+    padding: 0;
+    list-style: none;
+    display: flex;
+  }
+
+  li {
+    margin-right: 1em;
+  }
+}
+
+.navs_space {
+  height: @nav-height;
+}
+
+body {
+  padding: 0px;
+  margin: 0px auto;
+  background-color: @body-bg-color;
+}
