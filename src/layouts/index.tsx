@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Outlet } from 'umi'
 import styles from './index.less'
-import MenuItems from './MenuItems'
+import NavigationBar from './NavigationBar'
 
 export default function Layout() {
   const [showExpand, setShowExpand] = useState(false)
@@ -61,28 +61,19 @@ export default function Layout() {
 
   return (
     <div className={styles.root}>
-      <div className={styles.navs}>
-        <div className={styles.bar}>
-          <span className={styles.title}>sbchild.top 新站</span>
-        </div>
-        <div ref={containerRef}>
-          {showExpand ? (
-            <div className={styles.expand}>
-              <button className={styles.item}>显示菜单</button>
-            </div>
-          ) : (
-            <div className={styles.buttons}>
-              <div
-                ref={overflowDetectorRef}
-                className={styles.overflow_detector}
-              ></div>
-              <MenuItems />
-            </div>
-          )}
-        </div>
-      </div>
+      <NavigationBar
+        containerRef={containerRef}
+        showExpand={showExpand}
+        overflowDetectorRef={overflowDetectorRef}
+      />
       <div className={styles.navs_space}></div>
-      <Outlet />
+      <div className={styles.container}>
+        <Outlet />
+      </div>
+      <div className={styles.bottom}>
+        <p>sbchild.top 色妹妹的新站喵 Copyright © 2025</p>
+        <p>附加信息...</p>
+      </div>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-const DocsPage = () => {
+const BlogPage = () => {
   return (
     <div>
       <p>This is umi docs.</p>
@@ -6,4 +6,4 @@ const DocsPage = () => {
   );
 };
 
-export default DocsPage;
+export default BlogPage;
