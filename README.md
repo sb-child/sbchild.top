@@ -50,7 +50,7 @@ pnpm wrangler login
 pnpm wrangler deploy
 ```
 
-部署到 `https://sbchild-top.workers.dev`。
+部署到 `https://sbchild-top.sbchild.workers.dev`。
 
 ### 绑定正式域名（阶段 C）
 
