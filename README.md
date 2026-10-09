@@ -52,13 +52,6 @@ pnpm wrangler deploy
 
 部署到 `https://sbchild-top.sbchild.workers.dev`。
 
-### 绑定正式域名（阶段 C）
-
-1. Cloudflare dashboard 删除根域的 Redirect Rule（301 → gh.sbchild.top）
-2. `wrangler.jsonc` 取消注释 `routes` 段（`sbchild.top` Custom Domain）
-3. `npx wrangler deploy` —— CF 自动创建 DNS 记录 + 证书
-4. （可选）新建 Redirect Rule：`www.sbchild.top` → `https://sbchild.top`，并为 www 添加 proxied 占位 A 记录（`192.0.2.0`）
-
 ### noindex 说明
 
 - `workers.dev` 预览域名禁止收录：`_headers`（静态资源）+ `src/hooks.server.ts`（动态响应）双保险
