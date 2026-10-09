@@ -5,16 +5,26 @@
 ## 开发
 
 ```bash
-pnpm install
-pnpm dev        # 开发服务器
-pnpm check      # 类型检查
-pnpm build      # 构建（输出 .svelte-kit/cloudflare/）
-```
+# 登录 wrangler 
+pnpm wrangler login
 
-本地验证构建产物（含 Functions）：
+# 启动开发服务器
+pnpm dev
 
-```bash
-npx wrangler dev .svelte-kit/cloudflare/_worker.js --assets .svelte-kit/cloudflare
+# 类型检查
+pnpm check
+
+# 构建到 .svelte-kit/cloudflare/
+pnpm build
+
+# 本地测试 worker
+pnpm wrangler dev
+
+# 本地测试 worker 构建产物
+pnpm wrangler dev .svelte-kit/cloudflare/_worker.js --assets .svelte-kit/cloudflare
+
+# 部署到 Cloudflare Workers Static Assets
+pnpm wrangler deploy
 ```
 
 ## 架构

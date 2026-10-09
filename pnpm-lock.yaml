@@ -24,13 +24,13 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0(@sveltejs/kit@3.0.1(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.2)(vite@8.3.4(esbuild@0.28.1)(jiti@2.7.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@8.3.4(esbuild@0.28.1)(jiti@2.7.0)))(wrangler@4.148.0(@cloudflare/workers-types@5.20261008.1))
       '@sveltejs/kit':
-        specifier: ^3.0.0
+        specifier: ^3.0.1
         version: 3.0.1(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.2)(vite@8.3.4(esbuild@0.28.1)(jiti@2.7.0)))(svelte@5.57.2)(typescript@6.0.3)(vite@8.3.4(esbuild@0.28.1)(jiti@2.7.0))
       '@sveltejs/vite-plugin-svelte':
-        specifier: ^7.2.0
+        specifier: ^7.3.1
         version: 7.3.1(svelte@5.57.2)(vite@8.3.4(esbuild@0.28.1)(jiti@2.7.0))
       '@tailwindcss/vite':
-        specifier: ^4.3.0
+        specifier: ^4.3.3
         version: 4.3.3(vite@8.3.4(esbuild@0.28.1)(jiti@2.7.0))
       bits-ui:
         specifier: ^2.19.5
@@ -42,16 +42,16 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0(svelte@5.57.2)
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2
       svelte-check:
-        specifier: ^4.6.0
+        specifier: ^4.7.6
         version: 4.7.6(picomatch@4.0.7)(svelte@5.57.2)(typescript@6.0.3)
       tailwind-variants:
         specifier: ^3.3.1
         version: 3.3.1(tailwindcss@4.3.3)
       tailwindcss:
-        specifier: ^4.3.0
+        specifier: ^4.3.3
         version: 4.3.3
       tw-animate-css:
         specifier: ^1.4.0
@@ -60,7 +60,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^8.3.0
+        specifier: ^8.3.4
         version: 8.3.4(esbuild@0.28.1)(jiti@2.7.0)
       wrangler:
         specifier: ^4.148.0

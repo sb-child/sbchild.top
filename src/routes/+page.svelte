@@ -9,6 +9,6 @@
 </svelte:head>
 
 <section class="flex flex-col items-start gap-4 py-16">
-	<h1 class="text-4xl font-bold tracking-tight">Hi, 我是 {site.title}</h1>
-	<p class="text-lg text-muted-foreground">页面结构待定，这里是占位内容。</p>
+	<h1 class="text-4xl font-bold tracking-tight">想不到吧，我复活了。</h1>
+	<p class="text-lg text-muted-foreground">{site.description}</p>
 </section>

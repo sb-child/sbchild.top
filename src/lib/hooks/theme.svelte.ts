@@ -33,8 +33,10 @@ const KEY = 'theme';
 
 export function setTheme() {
 	const theme = new ThemeState();
-	$effect(() => theme.sync());
 	setContext(KEY, theme);
+	$effect(() => {
+		if (browser) theme.sync();
+	});
 }
 
 export function getTheme(): ThemeState {

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Moon, Sun } from '@lucide/svelte';
+	import Moon from '@lucide/svelte/icons/moon';
+	import Sun from '@lucide/svelte/icons/sun';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { getTheme } from '#lib/hooks/theme.svelte.js';
 
