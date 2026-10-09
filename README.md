@@ -1,56 +1,55 @@
-# sv
+# sbchild.top
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+个人主页。SvelteKit 3（全站预渲染，SEO 友好）+ Tailwind CSS v4 + shadcn-svelte，部署到 Cloudflare Workers（Static Assets）。
 
-## Creating a project
+## 开发
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
+```bash
+pnpm install
+pnpm dev        # 开发服务器
+pnpm check      # 类型检查
+pnpm build      # 构建（输出 .svelte-kit/cloudflare/）
 ```
 
-To recreate this project with the same configuration:
+本地验证构建产物（含 Functions）：
 
-```sh
-# recreate this project
-npx sv@1.1.1 create --template minimal --types ts --no-install sbchild-top
+```bash
+npx wrangler dev .svelte-kit/cloudflare/_worker.js --assets .svelte-kit/cloudflare
 ```
 
-## Adding features
+## 架构
 
-Add features to your project with `sv add`:
+- **路由**：文件系统路由（`src/routes/`），页面 = 文件夹。全站 `prerender`（见 `src/routes/+layout.ts`），产物为完整静态 HTML，爬虫无需执行 JS。
+- **SEO**：每页 `<svelte:head>` 独立 title/description/canonical；`sitemap.xml`（预渲染端点）+ `robots.txt`；`trailingSlash: 'always'` 统一 URL 形态。
+- **动态端点**：`src/routes/api/` 下的 `+server.ts` 跑在 Workers Functions 上，如 `/api/test`。
+- **组件**：shadcn-svelte 组件在 `src/lib/components/ui/`（由 CLI 生成，可重装），业务组件在 `src/lib/components/`。
+- **站点信息**：集中在 `src/lib/site.ts`。
 
-```sh
-npx sv add
+## 部署（Workers Static Assets）
+
+构建产物分两层：静态资源（HTML/CSS/JS，assets-first 直接服务、免费不限量）+ `_worker.js`（仅处理未命中静态资源的请求，如 `/api/*`）。
+
+```bash
+npx wrangler login   # 首次
+npx wrangler deploy
 ```
 
-For example, to add Tailwind CSS:
+部署到 `https://sbchild-top.workers.dev`。
 
-```sh
-npx sv add tailwindcss
-```
+### 绑定正式域名（阶段 C）
 
-## Developing
+1. Cloudflare dashboard 删除根域的 Redirect Rule（301 → gh.sbchild.top）
+2. `wrangler.jsonc` 取消注释 `routes` 段（`sbchild.top` Custom Domain）
+3. `npx wrangler deploy` —— CF 自动创建 DNS 记录 + 证书
+4. （可选）新建 Redirect Rule：`www.sbchild.top` → `https://sbchild.top`，并为 www 添加 proxied 占位 A 记录（`192.0.2.0`）
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### noindex 说明
 
-```sh
-npm run dev
+- `workers.dev` 预览域名禁止收录：`_headers`（静态资源）+ `src/hooks.server.ts`（动态响应）双保险
+- 正式域名不受影响
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+## 维护备忘
 
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- 新增页面：`src/routes/<name>/+page.svelte`，记得 `<svelte:head>` 里写 title/description/canonical，并加入 `src/lib/site.ts` 的 `nav`（如需导航）和 `sitemap.xml/+server.ts` 的 urls
+- 新增 shadcn 组件：`pnpm dlx shadcn-svelte add <component>`
+- 主题色基于 shadcn "nova" style（见 `src/routes/layout.css` 的 CSS 变量）

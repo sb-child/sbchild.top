@@ -1,0 +1,7 @@
+# workers.dev 预览域名禁止收录（正式域名放行）
+https://*:sbchild-top.workers.dev/*
+	X-Robots-Tag: noindex
+
+# 带内容哈希的构建产物，长缓存
+/_app/immutable/*
+	Cache-Control: public, max-age=31536000, immutable
