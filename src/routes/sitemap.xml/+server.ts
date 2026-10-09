@@ -5,7 +5,9 @@ import type { RequestHandler } from './$types';
 export const prerender = true;
 
 export const GET: RequestHandler = () => {
+  // 这里是要添加的 url
 	const urls = ['', 'about/'].map((path) => `${site.url}/${path}`);
+
 	const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `\t<url><loc>${u}</loc></url>`).join('\n')}

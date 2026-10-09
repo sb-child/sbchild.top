@@ -6,7 +6,7 @@
 
 <svelte:head>
   <title>About - {site.title}</title>
-  <meta name="description" content="关于 sbchild" />
+  <meta name="description" content="关于本站" />
   <link rel="canonical" href="{site.url}/about/" />
 </svelte:head>
 
