@@ -119,7 +119,7 @@
       text-shadow: 2px 2px @title-shadow;
       white-space: nowrap;
       .ff_unifont();
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transition: all 0.2s cubic-bezier(0.23, 0.87, 0.28, 0.99);
     }
 
     .title_small {
@@ -132,7 +132,7 @@
       text-shadow: 2px 2px @title-shadow;
       white-space: nowrap;
       .ff_unifont();
-      transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transition: all 0.2s cubic-bezier(0.23, 0.87, 0.28, 0.99);
     }
 
     .subtitle {
@@ -144,7 +144,7 @@
       text-shadow: 2px 2px @title-shadow;
       white-space: nowrap;
       .ff_unifont();
-      transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transition: all 0.2s cubic-bezier(0.23, 0.87, 0.28, 0.99);
     }
 
     .subtitle_hidden {
@@ -157,7 +157,7 @@
       text-shadow: 2px 2px @title-shadow;
       white-space: nowrap;
       .ff_unifont();
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transition: all 0.2s cubic-bezier(0.23, 0.87, 0.28, 0.99);
     }
   }
 
@@ -225,7 +225,15 @@ body {
   box-sizing: border-box;
   text-align: center;
   color: #d0bfff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   .ff_unifont();
+
+  > div {
+    display: inline-flex;
+  }
 
   @media (max-width: 768px) {
     padding: 15px;

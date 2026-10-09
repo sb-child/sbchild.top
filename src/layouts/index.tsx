@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Typed from 'typed.js'
 import { Outlet } from 'umi'
 import styles from './index.less'
 import NavigationBar from './NavigationBar'
@@ -10,6 +11,21 @@ export default function Layout() {
   const containerRef = useRef<HTMLDivElement>(null)
   const isCheckingRef = useRef(false)
   const animationCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [bottomTitle, setBottomTitle] = useState(
+    'sbchild.top 色妹妹的新站喵 Copyright © 2025',
+  )
+  const bottomTitleRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const bottomTitleTyped = new Typed(bottomTitleRef.current, {
+      strings: [bottomTitle],
+      typeSpeed: 50,
+      showCursor: false,
+    })
+
+    return () => {
+      bottomTitleTyped.destroy()
+    }
+  }, [])
 
   const checkOverflow = () => {
     // 防止重复检查
@@ -139,8 +155,10 @@ export default function Layout() {
         <Outlet />
       </div>
       <div className={styles.bottom}>
-        <p>sbchild.top 色妹妹的新站喵 Copyright © 2025</p>
-        <p>附加信息...</p>
+        <div>
+          <div ref={bottomTitleRef}></div>
+        </div>
+        <div>附加信息...</div>
       </div>
     </div>
   )

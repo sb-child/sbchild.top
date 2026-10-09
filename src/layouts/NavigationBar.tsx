@@ -23,6 +23,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   // 用于在动画过渡期间保持显示的子标题内容
   const [displayedSubTitle, setDisplayedSubTitle] = useState('')
   const [isAnimating, setIsAnimating] = useState(false)
+  // 用于子标题内容变化时的过渡动画
+  const [isSubtitleTransitioning, setIsSubtitleTransitioning] = useState(false)
   // 使用 ref 来立即保存当前子标题，避免状态更新时序问题
   const currentSubTitleRef = useRef('')
 
@@ -49,7 +51,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
           if (titleRef.current && subtitleRef.current) {
             // 同时为两个元素应用过渡到状态1的动画
             animate([titleRef.current, subtitleRef.current], {
-              duration: 300,
+              duration: 100,
               ease: 'inOut(2)',
               complete: () => {
                 // 动画完成后切换 CSS 类，延迟清空显示的子标题
@@ -78,7 +80,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
           if (titleRef.current && subtitleRef.current) {
             // 同时为两个元素应用过渡到状态2的动画
             animate([titleRef.current, subtitleRef.current], {
-              duration: 200,
+              duration: 100,
               ease: 'inOut(2)',
               complete: () => {
                 // 动画完成后切换 CSS 类
@@ -131,6 +133,40 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     scope.current?.methods.switchToState2()
   }, [currentState, isAnimating, subTitle, onAnimationStateChange])
 
+  // 子标题内容过渡动画函数
+  const transitionSubtitleContent = useCallback(
+    (newContent: string) => {
+      if (!subtitleRef.current || isSubtitleTransitioning) return
+
+      setIsSubtitleTransitioning(true)
+
+      // 淡出当前内容
+      animate(subtitleRef.current, {
+        opacity: 0,
+        duration: 100,
+        ease: 'easeOut',
+        complete: () => {
+          // 更新内容
+          setDisplayedSubTitle(newContent)
+          currentSubTitleRef.current = newContent
+
+          // 淡入新内容
+          if (subtitleRef.current) {
+            animate(subtitleRef.current, {
+              opacity: 1,
+              duration: 100,
+              ease: 'easeIn',
+              complete: () => {
+                setIsSubtitleTransitioning(false)
+              },
+            })
+          }
+        },
+      })
+    },
+    [isSubtitleTransitioning],
+  )
+
   // 根据子标题内容切换状态
   useEffect(() => {
     if (subTitle.trim() === '') {
@@ -141,9 +177,24 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
       }
       switchToState1()
     } else {
-      switchToState2()
+      // 如果当前已经在状态2，且子标题内容发生变化，执行内容过渡动画
+      if (
+        currentState === 2 &&
+        displayedSubTitle !== subTitle &&
+        displayedSubTitle !== ''
+      ) {
+        transitionSubtitleContent(subTitle)
+      } else {
+        switchToState2()
+      }
     }
-  }, [subTitle, scope.current, currentState, displayedSubTitle])
+  }, [
+    subTitle,
+    scope.current,
+    currentState,
+    displayedSubTitle,
+    transitionSubtitleContent,
+  ])
 
   // 测试用：模拟子标题内容变化
   useEffect(() => {

@@ -8,6 +8,7 @@ export default function MenuItems() {
   return (
     <>
       <MenuItem route="/">主页</MenuItem>
+      <MenuItem route="/tools">小工具</MenuItem>
       <MenuItem route="/friends">友情链接</MenuItem>
       <MenuItem route="/about">关于我</MenuItem>
       <MenuItem route="/blog">博客</MenuItem>
