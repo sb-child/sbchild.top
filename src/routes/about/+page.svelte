@@ -17,7 +17,7 @@
   <p class="leading-7 mt-6">
     这是历史遗留问题，之前的 workaround 是 301 到<Button
       variant="secondary"
-      href="https://gh.sbchild.top/"
+      href={site.blog}
       rel="noopener noreferrer"
       size="sm"
       target="_blank"><ExternalLink />博客站</Button

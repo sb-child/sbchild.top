@@ -12,7 +12,7 @@
     <div class="flex gap-2">
       <Button
         variant="secondary"
-        href="https://github.com/sb-child"
+        href={site.github}
         rel="noopener noreferrer"
         target="_blank"><ExternalLink />GitHub Profile</Button
       >
