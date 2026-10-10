@@ -1,6 +1,6 @@
 <script lang="ts">
   import "./layout.css";
-  import favicon from "#lib/assets/favicon.svg";
+  import favicon from "#lib/assets/favicon.ico";
   import { setTheme } from "#lib/hooks/theme.svelte.js";
   import Header from "#lib/components/header.svelte";
   import Footer from "#lib/components/footer.svelte";
