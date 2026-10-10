@@ -8,12 +8,28 @@
   </head>
   <body data-sveltekit-preload-data="hover">
     <div style="display: contents">%sveltekit.body%</div>
+
+    <!-- Cloudflare Web Analytics -->
+    <script
+      type="module"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "8183db815f2546e19b1978f3f8b385fa"}'
+    ></script>
+    <!-- End Cloudflare Web Analytics -->
+
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-6Y5JBS9L6H"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-6Y5JBS9L6H");
+    </script>
+    <!-- End Google tag (gtag.js) -->
   </body>
-  <!-- Cloudflare Web Analytics -->
-  <script
-    type="module"
-    src="https://static.cloudflareinsights.com/beacon.min.js"
-    data-cf-beacon='{"token": "8183db815f2546e19b1978f3f8b385fa"}'
-  ></script>
-  <!-- End Cloudflare Web Analytics -->
 </html>

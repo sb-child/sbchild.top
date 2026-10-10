@@ -1,4 +1,4 @@
-# workers.dev 预览域名禁止收录（正式域名放行）
+# workers.dev 预览域名禁止收录
 https://*:sbchild-top.workers.dev/*
 	X-Robots-Tag: noindex
 

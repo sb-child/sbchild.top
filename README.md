@@ -50,7 +50,7 @@ pnpm wrangler login
 pnpm wrangler deploy
 ```
 
-部署到 `https://sbchild-top.sbchild.workers.dev`。
+~~部署到 `https://sbchild-top.sbchild.workers.dev`。~~ `https://sbchild.top`
 
 ### noindex 说明
 

@@ -1,0 +1,3 @@
+# 旧博客地址重定向
+/blog https://gh.sbchild.top 301
+/blog/* https://gh.sbchild.top 301
