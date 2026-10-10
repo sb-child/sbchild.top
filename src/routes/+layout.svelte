@@ -4,6 +4,7 @@
   import { setTheme } from "#lib/hooks/theme.svelte.js";
   import Header from "#lib/components/header.svelte";
   import Footer from "#lib/components/footer.svelte";
+  import Analytics from "#lib/components/analytics.svelte";
   import type { LayoutProps } from "./$types";
 
   let { children }: LayoutProps = $props();
@@ -22,3 +23,4 @@
   </main>
   <Footer />
 </div>
+<Analytics />
