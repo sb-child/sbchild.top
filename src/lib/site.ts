@@ -4,6 +4,7 @@ export const site = {
   description: "色妹妹的个人主页",
   blog: "https://gh.sbchild.top/",
   github: "https://github.com/sb-child/",
+  sourceCode: "https://github.com/sb-child/sbchild.top",
 } as const;
 
 export const nav = [

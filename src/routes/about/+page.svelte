@@ -24,5 +24,13 @@
     >，但我现在改变主意了。
   </p>
 
-  <p class="leading-7">现在本站部署到 Cloudflare Workers，祝你玩得开心。</p>
+  <p class="leading-7">
+    现在本站部署到 Cloudflare Workers，源码在<Button
+      variant="secondary"
+      href={site.sourceCode}
+      rel="noopener noreferrer"
+      size="sm"
+      target="_blank"><ExternalLink />GitHub Repo</Button
+    >，祝你玩得开心。
+  </p>
 </section>
