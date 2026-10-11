@@ -54,7 +54,7 @@
         {#each nav as item (item.href)}
           <DropdownMenu.Item>
             {#snippet child({ props })}
-              <a {...props} href={item.href}>
+              <a {...props} href={item.href} rel="noopener" target="_blank">
                 {item.title}
                 {#if item.external}
                   <ExternalLink class="ml-auto" />

@@ -18,7 +18,7 @@
     这是历史遗留问题，之前的 workaround 是 301 到<Button
       variant="secondary"
       href={site.blog}
-      rel="noopener noreferrer"
+      rel="noopener"
       size="sm"
       target="_blank"><ExternalLink />博客站</Button
     >，但我现在改变主意了。
@@ -28,7 +28,7 @@
     现在本站部署到 Cloudflare Workers，源码在<Button
       variant="secondary"
       href={site.sourceCode}
-      rel="noopener noreferrer"
+      rel="noopener"
       size="sm"
       target="_blank"><ExternalLink />GitHub Repo</Button
     >，祝你玩得开心。

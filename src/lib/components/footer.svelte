@@ -13,7 +13,7 @@
       <Button
         variant="secondary"
         href={site.github}
-        rel="noopener noreferrer"
+        rel="noopener"
         target="_blank"><ExternalLink />GitHub Profile</Button
       >
     </div>
