@@ -14,37 +14,170 @@
   import { Badge } from "#lib/components/ui/badge/index.ts";
   import * as AlertDialog from "#lib/components/ui/alert-dialog/index.ts";
   import * as Tooltip from "#lib/components/ui/tooltip/index.js";
-  import { lightbox_image_editor_session } from "@sb-child/sbchild-top-wasm";
+  import { tick } from "svelte";
+  import init, {
+    LightboxEditorHandle,
+    LightboxEditorSession,
+    lightbox_image_editor_session,
+  } from "@sb-child/sbchild-top-wasm";
+  // 显式传入 wasm 资源 URL：默认的 new URL(..., import.meta.url) 经过 Vite 预打包后会失效。
+  import wasm_url from "@sb-child/sbchild-top-wasm/sbchild_top_wasm_bg.wasm?url";
   import Slider from "./ui/slider/slider.svelte";
   import Label from "./ui/label/label.svelte";
+
+  const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+  type LabeledSliderOptions = {
+    id: string;
+    label: string;
+    /** 读取当前值（渲染时调用，能正常追踪 $state） */
+    get: () => number;
+    set: (value: number) => void;
+    /** 默认值，也是“重置”回到的值 */
+    defaultValue?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+  };
+
+  // ---- 提示弹窗 ----
 
   let isAlertOpen = $state(false);
   let alertTitle = $state("");
   let alertContent = $state("");
+
+  function show_alert(title: string, content: string) {
+    alertTitle = title;
+    alertContent = content;
+    isAlertOpen = true;
+  }
+
+  // ---- 表单状态（已确认的结果） ----
+
+  /** 已确认的图片；编辑被取消时不会清空 */
+  let stored_file_name = $state<string | null>(null);
+  let stored_webp = $state<Uint8Array | null>(null);
+
+  let file_input = $state<HTMLInputElement | null>(null);
+
+  // ---- 编辑器状态（临时） ----
+
+  /** 正在编辑的文件；确定或取消后清空 */
+  let editing_file = $state<File | null>(null);
   let isEditorOpen = $state(false);
   let editorTitle = $state("");
   let editorXOffset = $state(0.0);
   let editorYOffset = $state(0.0);
   let editorScale = $state(1.0);
+  let canvas = $state<HTMLCanvasElement | null>(null);
 
-  const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+  /** wasm 0.2.0：session 按值传入后即失效，命令一律走 handle */
+  let editor_handle: LightboxEditorHandle | null = null;
+  let editor_ready = $state(false);
+  /** 作废“上一轮还挂在 await 上”的会话 */
+  let run_id = 0;
+  /** 点“确定”时置 true，避免关弹窗时又发 cancel */
+  let skip_cancel = false;
 
-  let file_input = $state<HTMLInputElement | null>(null);
-  let selected_file = $state<File | null>(null);
+  // ---- wasm ----
 
-  type LabeledSliderOptions = {
-    id: string;
-    label: string;
-    /** 读取当前值（在渲染时调用，能正常追踪响应式依赖） */
-    get: () => number;
-    set: (value: number) => void;
-    /** 默认值（也是点“重置”回到的值），默认 0 */
-    defaultValue?: number;
-    /** 取值范围和步长，默认 -1 ~ 1，步长 0.01 */
-    min?: number;
-    max?: number;
-    step?: number;
-  };
+  let wasm_loading: Promise<void> | null = null;
+
+  function ensure_wasm() {
+    wasm_loading ??= init({ module_or_path: wasm_url }).then(() => undefined);
+    return wasm_loading.catch((err) => {
+      // 加载失败后允许下次重试
+      wasm_loading = null;
+      throw err;
+    });
+  }
+
+  async function wait_for_canvas() {
+    // 弹窗内容（含 canvas）要等下一帧才挂载
+    for (let i = 0; i < 5 && !canvas; i++) {
+      await tick();
+    }
+    return canvas;
+  }
+
+  // ---- 编辑器流程 ----
+
+  async function start_editing(file: File) {
+    const canvas_el = await wait_for_canvas();
+    // 等画布 / wasm 的过程中用户可能已经把弹窗关掉了
+    if (!canvas_el || !isEditorOpen) {
+      return;
+    }
+
+    try {
+      await ensure_wasm();
+    } catch (err) {
+      show_alert("图像处理模块加载失败", String(err));
+      return;
+    }
+
+    if (!isEditorOpen) {
+      return;
+    }
+
+    const run = ++run_id;
+    // 上一轮如果还在等 confirm/cancel，先让它以 undefined 结束
+    editor_handle?.cancel();
+
+    const session = new LightboxEditorSession();
+    // handle 必须在 session 传给编辑函数之前创建
+    const handle = session.handle();
+    editor_handle = handle;
+    editor_ready = true;
+
+    let output: Uint8Array | undefined;
+    try {
+      const data = new Uint8Array(await file.arrayBuffer());
+      // session 按值传入后 JS 侧失效（不要再调用它，也不要 free）
+      // 这个 Promise 到 confirm() 才返回 WebP，cancel() 则返回 undefined
+      output = await lightbox_image_editor_session(canvas_el, session, data);
+    } catch (err) {
+      // wasm 抛的是字符串，不是 Error
+      if (run === run_id) {
+        show_alert("图片处理失败", String(err));
+      }
+    } finally {
+      handle.free();
+      if (run === run_id) {
+        // 会话结束（确定 / 取消 / 出错）后清理临时态
+        editor_handle = null;
+        editor_ready = false;
+        editing_file = null;
+        skip_cancel = false;
+      }
+    }
+
+    if (output) {
+      // confirm 成功：结果先留在表单状态里，真正上传留给“发布”
+      stored_file_name = file.name;
+      stored_webp = output;
+    }
+  }
+
+  // 滑块变化时把参数推给 wasm，重新裁剪并刷新预览
+  $effect(() => {
+    const settings = {
+      scale: editorScale,
+      offset_x: editorXOffset,
+      offset_y: editorYOffset,
+    };
+    if (!editor_ready || !editor_handle) {
+      return;
+    }
+    try {
+      // serde 反序列化要求三个字段齐全
+      editor_handle.update_settings(settings);
+    } catch (err) {
+      show_alert("参数错误", String(err));
+    }
+  });
+
+  // ---- 事件处理 ----
 
   function on_select_image_file() {
     file_input?.click();
@@ -62,17 +195,54 @@
       return;
     }
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      alertTitle = "文件类型不支持";
-      alertContent = "请选择 PNG、JPEG 或 WebP 格式的图片。";
-      isAlertOpen = true;
+      show_alert("文件类型不支持", "请选择 PNG、JPEG 或 WebP 格式的图片。");
       return;
     }
 
-    selected_file = file;
-    console.log("Selected file:", file);
+    editing_file = file;
     editorTitle = `编辑 ${file.name}`;
+    editorXOffset = 0.0;
+    editorYOffset = 0.0;
+    editorScale = 1.0;
+    skip_cancel = false;
     isEditorOpen = true;
-    // lightbox_image_editor_session()
+    void start_editing(file);
+  }
+
+  function on_editor_open_change(open: boolean) {
+    if (open) {
+      return;
+    }
+    // 取消 / Esc / 点遮罩都会走到这里，让会话正常结束
+    if (!skip_cancel) {
+      editor_handle?.cancel();
+    }
+    // 只清临时态，已确认的 stored_* 保持不变
+    editing_file = null;
+    skip_cancel = false;
+  }
+
+  function on_editor_confirm() {
+    skip_cancel = true;
+    editor_handle?.confirm();
+    // 父组件直接设 isEditorOpen 不会触发 onOpenChange，这里手动清临时态
+    isEditorOpen = false;
+    editing_file = null;
+  }
+
+  /** 重置表单：清除已确认的结果 */
+  function on_reset_form() {
+    stored_file_name = null;
+    stored_webp = null;
+    editing_file = null;
+  }
+
+  /** 占位：发布时把 stored_webp 交给上传 API */
+  function on_publish() {
+    if (!stored_webp) {
+      return;
+    }
+    // TODO: 上传 stored_webp（文件名见 stored_file_name）
   }
 </script>
 
@@ -110,23 +280,25 @@
     </AlertDialog.Header>
     <AlertDialog.Footer>
       <AlertDialog.Cancel>好的</AlertDialog.Cancel>
-      <!-- <AlertDialog.Action>Continue</AlertDialog.Action> -->
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
 
-<AlertDialog.Root bind:open={isEditorOpen}>
+<AlertDialog.Root bind:open={isEditorOpen} onOpenChange={on_editor_open_change}>
   <AlertDialog.Content
     class="max-w-2xl! max-h-[85dvh] overflow-y-auto overscroll-contain"
   >
     <AlertDialog.Header>
       <AlertDialog.Title>{editorTitle}</AlertDialog.Title>
-      <!-- <AlertDialog.Description>{alertContent}</AlertDialog.Description> -->
     </AlertDialog.Header>
     <div>
       <!-- 编辑器组件 -->
       <div class="flex flex-col gap-2">
-        <div class="aspect-4/3 w-full bg-amber-600 rounded-lg">(4/3图片)</div>
+        <div
+          class="aspect-4/3 w-full overflow-hidden rounded-lg bg-transparent"
+        >
+          <canvas bind:this={canvas} class="block size-full"></canvas>
+        </div>
         <Card.Root class="w-full">
           <Card.Content class="space-y-2">
             {@render labeled_slider({
@@ -157,7 +329,9 @@
     </div>
     <AlertDialog.Footer>
       <AlertDialog.Cancel>取消</AlertDialog.Cancel>
-      <AlertDialog.Action>确定</AlertDialog.Action>
+      <AlertDialog.Action onclick={on_editor_confirm} disabled={!editor_ready}
+        >确定</AlertDialog.Action
+      >
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
@@ -241,9 +415,13 @@
         <Button variant="outline" onclick={on_select_image_file}
           ><ImageUp />选择图片...</Button
         >
-        {#if selected_file}
+        {#if editing_file}
           <p class="text-sm text-muted-foreground break-all">
-            已选择：{selected_file.name}
+            正在编辑：{editing_file.name}
+          </p>
+        {:else if stored_file_name}
+          <p class="text-sm text-muted-foreground break-all">
+            已选择：{stored_file_name}
           </p>
         {/if}
         <Separator />
@@ -261,8 +439,12 @@
       </Card.Content>
       <Card.Footer>
         <div class="flex flex-wrap items-center gap-2 md:flex-row">
-          <Button variant="default"><Zap />发布</Button>
-          <Button variant="outline"><RotateCcw />重置表单</Button>
+          <Button variant="default" onclick={on_publish} disabled={!stored_webp}
+            ><Zap />发布</Button
+          >
+          <Button variant="outline" onclick={on_reset_form}
+            ><RotateCcw />重置表单</Button
+          >
         </div>
       </Card.Footer>
     </Card.Root>

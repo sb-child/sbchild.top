@@ -2,7 +2,7 @@
   "extends": "$app/tsconfig",
   "compilerOptions": {
     "strict": true,
-    "types": ["@types/wicg-file-system-access"]
+    "types": ["@types/wicg-file-system-access", "$app/types"]
   },
   "include": ["src", "vite.config.ts"]
 }

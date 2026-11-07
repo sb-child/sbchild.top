@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@sb-child/sbchild-top-wasm':
-        specifier: 0.1.3
-        version: 0.1.3
+        specifier: 0.2.0
+        version: 0.2.0
     devDependencies:
       '@fontsource-variable/geist':
         specifier: ^5.3.0
@@ -599,8 +599,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@sb-child/sbchild-top-wasm@0.1.3':
-    resolution: {integrity: sha512-v1sqvBgTsBx2k+uJIBPftYPuhbf6OoJOLZhH1B632xz9QSyj8G+70pmc+BFDGHfCWvY+fdb1h6bt8U5XyPICTg==, tarball: https://npm.pkg.github.com/download/@sb-child/sbchild-top-wasm/0.1.3/6b00eab8762c77f7475857a7cd8dd57078525599}
+  '@sb-child/sbchild-top-wasm@0.2.0':
+    resolution: {integrity: sha512-ltMatHsCx4ogA8aHuDk0pErjQ02hzM3WwscDR1AVvO1aK8zFnCTESY0UdJ/NzxjQl8DWwRbRVa5JIKaoonpChg==, tarball: https://npm.pkg.github.com/download/@sb-child/sbchild-top-wasm/0.2.0/5f1bef7633d71f39cc18a7893a783098c401952d}
 
   '@sindresorhus/is@7.2.0':
     resolution: {integrity: sha512-P1Cz1dWaFfR4IR+U13mqqiGsLFf1KbayybWwdd2vfctdV6hDpUkgCY0nKOLLTMSoRd/jJNjtbqzf13K8DCCXQw==}
@@ -1545,7 +1545,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@sb-child/sbchild-top-wasm@0.1.3': {}
+  '@sb-child/sbchild-top-wasm@0.2.0': {}
 
   '@sindresorhus/is@7.2.0': {}
 
