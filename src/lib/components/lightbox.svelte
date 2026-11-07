@@ -12,8 +12,155 @@
   import { Spinner } from "#lib/components/ui/spinner/index.js";
   import { Input } from "#lib/components/ui/input/index.ts";
   import { Badge } from "#lib/components/ui/badge/index.ts";
+  import * as AlertDialog from "#lib/components/ui/alert-dialog/index.ts";
   import * as Tooltip from "#lib/components/ui/tooltip/index.js";
+  import { lightbox_image_editor_session } from "@sb-child/sbchild-top-wasm";
+  import Slider from "./ui/slider/slider.svelte";
+  import Label from "./ui/label/label.svelte";
+
+  let isAlertOpen = $state(false);
+  let alertTitle = $state("");
+  let alertContent = $state("");
+  let isEditorOpen = $state(false);
+  let editorTitle = $state("");
+  let editorXOffset = $state(0.0);
+  let editorYOffset = $state(0.0);
+  let editorScale = $state(1.0);
+
+  const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+  let file_input = $state<HTMLInputElement | null>(null);
+  let selected_file = $state<File | null>(null);
+
+  type LabeledSliderOptions = {
+    id: string;
+    label: string;
+    /** 读取当前值（在渲染时调用，能正常追踪响应式依赖） */
+    get: () => number;
+    set: (value: number) => void;
+    /** 默认值（也是点“重置”回到的值），默认 0 */
+    defaultValue?: number;
+    /** 取值范围和步长，默认 -1 ~ 1，步长 0.01 */
+    min?: number;
+    max?: number;
+    step?: number;
+  };
+
+  function on_select_image_file() {
+    file_input?.click();
+  }
+
+  function on_image_file_change(
+    event: Event & { currentTarget: HTMLInputElement },
+  ) {
+    const input = event.currentTarget;
+    const file = input.files?.[0] ?? null;
+    // 清空 value，保证再次选择同一个文件时也能触发 change
+    input.value = "";
+
+    if (!file) {
+      return;
+    }
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      alertTitle = "文件类型不支持";
+      alertContent = "请选择 PNG、JPEG 或 WebP 格式的图片。";
+      isAlertOpen = true;
+      return;
+    }
+
+    selected_file = file;
+    console.log("Selected file:", file);
+    editorTitle = `编辑 ${file.name}`;
+    isEditorOpen = true;
+    // lightbox_image_editor_session()
+  }
 </script>
+
+{#snippet labeled_slider(options: LabeledSliderOptions)}
+  <div class="flex items-center justify-between gap-2">
+    <Label for={options.id}>{options.label}</Label>
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-muted-foreground">{options.get()}</span>
+      <Button
+        variant="outline"
+        size="xs"
+        onclick={() => options.set(options.defaultValue ?? 0)}
+        disabled={options.get() == (options.defaultValue ?? 0)}
+        ><RotateCcw />重置</Button
+      >
+    </div>
+  </div>
+  <Slider
+    type="single"
+    id={options.id}
+    value={options.get()}
+    onValueChange={options.set}
+    min={options.min ?? -1}
+    step={options.step ?? 0.01}
+    max={options.max ?? 1}
+    class="mx-auto w-full"
+  />
+{/snippet}
+
+<AlertDialog.Root bind:open={isAlertOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>{alertTitle}</AlertDialog.Title>
+      <AlertDialog.Description>{alertContent}</AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>好的</AlertDialog.Cancel>
+      <!-- <AlertDialog.Action>Continue</AlertDialog.Action> -->
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
+
+<AlertDialog.Root bind:open={isEditorOpen}>
+  <AlertDialog.Content
+    class="max-w-2xl! max-h-[85dvh] overflow-y-auto overscroll-contain"
+  >
+    <AlertDialog.Header>
+      <AlertDialog.Title>{editorTitle}</AlertDialog.Title>
+      <!-- <AlertDialog.Description>{alertContent}</AlertDialog.Description> -->
+    </AlertDialog.Header>
+    <div>
+      <!-- 编辑器组件 -->
+      <div class="flex flex-col gap-2">
+        <div class="aspect-4/3 w-full bg-amber-600 rounded-lg">(4/3图片)</div>
+        <Card.Root class="w-full">
+          <Card.Content class="space-y-2">
+            {@render labeled_slider({
+              id: "lightbox-editor-x-offset",
+              label: "水平方向位移",
+              get: () => editorXOffset,
+              set: (value) => (editorXOffset = value),
+            })}
+            {@render labeled_slider({
+              id: "lightbox-editor-y-offset",
+              label: "垂直方向位移",
+              get: () => editorYOffset,
+              set: (value) => (editorYOffset = value),
+            })}
+            {@render labeled_slider({
+              id: "lightbox-editor-scale",
+              label: "缩放",
+              get: () => editorScale,
+              set: (value) => (editorScale = value),
+              min: 1.0,
+              max: 4.0,
+              step: 0.01,
+              defaultValue: 1.0,
+            })}
+          </Card.Content>
+        </Card.Root>
+      </div>
+    </div>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>取消</AlertDialog.Cancel>
+      <AlertDialog.Action>确定</AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full">
   <div class="lg:col-span-2">
@@ -48,7 +195,7 @@
           <Tooltip.Provider>
             <Tooltip.Root>
               <Tooltip.Trigger>
-                <Badge variant="secondary">
+                <Badge variant="default">
                   <Timer />内容 7天 后过期
                 </Badge>
               </Tooltip.Trigger>
@@ -84,7 +231,21 @@
         </Badge>
         <Separator />
         <p>选择你中意的图片吧：</p>
-        <Button variant="outline"><ImageUp />选择图片...</Button>
+        <input
+          bind:this={file_input}
+          class="hidden"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onchange={on_image_file_change}
+        />
+        <Button variant="outline" onclick={on_select_image_file}
+          ><ImageUp />选择图片...</Button
+        >
+        {#if selected_file}
+          <p class="text-sm text-muted-foreground break-all">
+            已选择：{selected_file.name}
+          </p>
+        {/if}
         <Separator />
         <p>填写新图片的标题，它会显示在图片上方：</p>
         <Input

@@ -1,5 +1,5 @@
 export const site = {
-  url: "https://sbchild.top",
+  url: "https://sbchild.top/",
   title: "sbchild.top",
   description: "色妹妹的个人主页",
   blog: "https://gh.sbchild.top/",
